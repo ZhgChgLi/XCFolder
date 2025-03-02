@@ -1,0 +1,12 @@
+
+/* Class = "UILabel"; text = "首次使用優惠領取狀態："; ObjectID = "815-PZ-lcp"; */
+"815-PZ-lcp.text" = "首次使用優惠領取狀態：";
+
+/* Class = "UIButton"; normalTitle = "領取"; ObjectID = "8Fu-9U-391"; */
+"8Fu-9U-391.normalTitle" = "領取";
+
+/* Class = "UIButton"; normalTitle = "未領取"; ObjectID = "DDA-5E-zE5"; */
+"DDA-5E-zE5.normalTitle" = "未領取";
+
+/* Class = "UIButton"; selectedTitle = "已領過"; ObjectID = "DDA-5E-zE5"; */
+"DDA-5E-zE5.selectedTitle" = "已領過";

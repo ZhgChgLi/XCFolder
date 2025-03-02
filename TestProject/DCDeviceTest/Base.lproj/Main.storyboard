@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina6_1" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="DCDeviceTest" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="jub-WB-NHj">
+                                <rect key="frame" x="83.5" y="369" width="247" height="158"/>
+                                <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZPB-gd-9JS">
+                                        <rect key="frame" x="0.0" y="0.0" width="247" height="128"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="首次使用優惠領取狀態：" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="815-PZ-lcp">
+                                                <rect key="frame" x="0.0" y="0.0" width="191" height="128"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <button opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DDA-5E-zE5">
+                                                <rect key="frame" x="191" y="0.0" width="56" height="128"/>
+                                                <state key="normal" title="未領取">
+                                                    <color key="titleColor" name="systemRedColor" catalog="System" colorSpace="catalog"/>
+                                                </state>
+                                                <state key="selected" title="已領過">
+                                                    <color key="titleColor" name="systemGreenColor" catalog="System" colorSpace="catalog"/>
+                                                </state>
+                                            </button>
+                                        </subviews>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstAttribute="bottom" secondItem="DDA-5E-zE5" secondAttribute="bottom" id="5lC-Ny-Tbb"/>
+                                            <constraint firstItem="DDA-5E-zE5" firstAttribute="leading" secondItem="815-PZ-lcp" secondAttribute="trailing" id="QeL-gb-f3R"/>
+                                            <constraint firstItem="DDA-5E-zE5" firstAttribute="top" secondItem="ZPB-gd-9JS" secondAttribute="top" id="eV5-s8-JLE"/>
+                                            <constraint firstItem="815-PZ-lcp" firstAttribute="top" secondItem="ZPB-gd-9JS" secondAttribute="top" id="gBR-BX-bkJ"/>
+                                            <constraint firstItem="815-PZ-lcp" firstAttribute="leading" secondItem="ZPB-gd-9JS" secondAttribute="leading" id="mix-7K-GoB"/>
+                                            <constraint firstAttribute="trailing" secondItem="DDA-5E-zE5" secondAttribute="trailing" id="obq-Uh-Tiq"/>
+                                            <constraint firstAttribute="bottom" secondItem="815-PZ-lcp" secondAttribute="bottom" id="whY-Xe-wY2"/>
+                                        </constraints>
+                                    </view>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8Fu-9U-391">
+                                        <rect key="frame" x="0.0" y="128" width="247" height="30"/>
+                                        <state key="normal" title="領取"/>
+                                        <connections>
+                                            <action selector="getBtnClick:" destination="BYZ-38-t0r" eventType="touchUpInside" id="z5j-Kx-T15"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="jub-WB-NHj" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="49N-ru-kPj"/>
+                            <constraint firstItem="jub-WB-NHj" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="T8h-VK-SUP"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                    </view>
+                    <connections>
+                        <outlet property="getBtn" destination="8Fu-9U-391" id="kYW-TK-Z4X"/>
+                        <outlet property="statusBtn" destination="DDA-5E-zE5" id="KzM-Em-06j"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="137.68115942028987" y="95.758928571428569"/>
+        </scene>
+    </scenes>
+</document>
