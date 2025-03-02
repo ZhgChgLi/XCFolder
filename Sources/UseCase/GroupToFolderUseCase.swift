@@ -87,7 +87,7 @@ private extension GroupToFolderUseCase {
             }
         } else if let pathNode = pathNode as? FileNode {
             guard let fileType = pathNode.fileType,
-                  configuration.allowFileTypes.contains(fileType) else {
+                  !configuration.ignoreFileTypes.contains(fileType) else {
                 logger.log(message: "⏭️ Skipping file with unsupported type: \(pathNode.path ?? "unknown")")
                 return
             }

@@ -17,8 +17,8 @@ struct ConfigurationMapper {
                 return path
             }
         })
-        let allowFileTypes = entity.allowFileTypes
+        let ignoreFileTypes = entity.ignoreFileTypes
         let moveFileOnly = entity.moveFileOnly
-        return Configuration(ignorePaths: ignorePaths, allowFileTypes: allowFileTypes, moveFileOnly: moveFileOnly)
+        return Configuration(ignorePaths: ignorePaths, ignoreFileTypes: ignoreFileTypes, moveFileOnly: moveFileOnly)
     }
 }

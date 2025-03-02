@@ -30,17 +30,10 @@ ignorePaths:
 - "Frameworks"
 - "Products"
 
-# Allowed file types to include when scanning
-allowFileTypes:
-- "sourcecode.swift"      # Swift source code files
-- "sourcecode.c.objc"     # Objective-C source code files
-- "sourcecode.cpp.objcpp" # Objective-C++ source code files  
-- "sourcecode.c.h"        # C/Objective-C header files
-- "file.xib"             # Interface Builder XIB files
-- "file.storyboard"      # Interface Builder Storyboard files
-- "folder.assetcatalog"  # Asset catalog containing images and resources
-- "text.json.xcstrings"  # Localized strings in JSON format
-- "text.plist.strings"   # Localized strings in plist format
+# FileTypes to ignore when converting files
+ignoreFileTypes:
+- "wrapper.pb-project"
+- "wrapper.framework"
 
 # Whether to move files only, without changing .xcodeproj settings
 moveFileOnly: false
