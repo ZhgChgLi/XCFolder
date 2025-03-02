@@ -1,0 +1,6 @@
+framework module CupertinoJWT {
+  umbrella header "CupertinoJWT-umbrella.h"
+
+  export *
+  module * { export * }
+}
