@@ -21,21 +21,6 @@ final class FileNode: PathNode {
         return (source as? PBXFileReference)?.lastKnownFileType
     }
     
-    var newPath: Path {
-        guard let path = self.path else {
-            return Path(name ?? "")
-        }
-        
-        switch source.sourceTree {
-        case .absolute, .sourceRoot:
-            return Path(Path(path).lastComponent)
-        case .group:
-            return Path(path)
-        default:
-            return Path(path)
-        }
-    }
-    
     init(source: PBXFileElement, parent: PathNode?) {
         self.source = source
         self.name = source.name
@@ -45,7 +30,11 @@ final class FileNode: PathNode {
     
     func fullPath(projectPath: Path) -> Path {
         let result = parent?.fullPath(projectPath: projectPath) ?? Path()
-        return projectPath + result + newPath
+        if let path = self.path {
+            return projectPath + result + Path(Path(path).lastComponent)
+        } else {
+            return projectPath + result + Path(name ?? "")
+        }
     }
     
     func originalPath(projectPath: Path) -> Path? {

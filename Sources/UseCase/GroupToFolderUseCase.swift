@@ -122,7 +122,7 @@ private extension GroupToFolderUseCase {
     }
     
     func adjustXcodeProjFile(pathNode: FileNode, fullPath: Path) {
-        pathNode.source.path = pathNode.newPath.string
+        pathNode.source.path = fullPath.lastComponent
         pathNode.source.sourceTree = .group
     }
     
