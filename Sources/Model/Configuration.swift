@@ -10,7 +10,7 @@ import PathKit
 struct Configuration: CustomStringConvertible {
     /// Paths to ignore when scanning for source files
     let ignorePaths: [Path]
-    /// FileTypes to ignore when converting files
+    /// File types to ignore when scanning for source files
     let ignoreFileTypes: [String]
     /// Whether to move files only, without changing .xcodeproj settings
     let moveFileOnly: Bool
@@ -18,20 +18,20 @@ struct Configuration: CustomStringConvertible {
     var description: String {
         return """
         # Ignore Paths: \(ignorePaths)
-        # Allow File Types: \(allowFileTypes)
+        # Ignore File Types: \(ignoreFileTypes)
         # Move File Only: \(moveFileOnly)
         """
     }
     
     init() {
         self.ignorePaths = ["Pods", "Frameworks", "Products"]
-        self.allowFileTypes = ["sourcecode.swift", "sourcecode.c.objc", "sourcecode.cpp.objcpp", "sourcecode.c.h","file.xib","file.storyboard","folder.assetcatalog","text.json.xcstrings","text.plist.strings"]
+        self.ignoreFileTypes = ["wrapper.framework", "wrapper.pb-project"]
         self.moveFileOnly = false
     }
     
-    init(ignorePaths: [Path], allowFileTypes: [String], moveFileOnly: Bool) {
+    init(ignorePaths: [Path], ignoreFileTypes: [String], moveFileOnly: Bool) {
         self.ignorePaths = ignorePaths
-        self.allowFileTypes = allowFileTypes
+        self.ignoreFileTypes = ignoreFileTypes
         self.moveFileOnly = moveFileOnly
     }
 }

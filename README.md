@@ -1,18 +1,21 @@
 # XCFolder
 
 <p align="center">
-  <img width="700" alt="image" src="https://github.com/user-attachments/assets/82da28b2-5161-4379-90f0-4ba331f76b88" />
+  <img width="700" alt="image" src="https://github.com/user-attachments/assets/27df3d5c-0ad8-46aa-842d-10aaf0bbaeb0" />
 </p>
 
-XCFolder is a powerful utility that converts Xcode virtual folders (group) into real filesystem directories (folder), facilitating seamless migration to modern build systems like Tuist or XcodeGen.
+XCFolder is a powerful tool that converts Xcode virtual groups into actual directories (associated folder), enabling seamless integration with modern xcode project gen tools like Tuist and XcodeGen.
 
-This tool ensures perfect synchronization between your Xcode project structure and the actual filesystem organization, making project maintenance more intuitive and efficient.
+By ensuring perfect synchronization between your Xcode project structure and the filesystem, XCFolder simplifies project organization, enhances maintainability, and improves workflow efficiency.
 
 ## Key Features
 - **Smart Group Conversion**: Intelligently transforms Xcode virtual groups into physical directories while preserving project structure
 - **Perfect Synchronization**: Maintains 1:1 mapping between Xcode project navigator and filesystem directories
 - **Automated Organization**: Eliminates manual folder management with automated synchronization
 - **Migration Ready**: Prepares your project structure for modern build systems like Tuist and XcodeGen
+
+![EXAMPLE](https://github.com/user-attachments/assets/aa099b5a-191b-42a0-b7f9-2005d5ca4b90)
+
 
 ## Usage
 ### Step 1. Clone this repo
@@ -30,14 +33,13 @@ ignorePaths:
 - "Frameworks"
 - "Products"
 
-# FileTypes to ignore when converting files
+# File types to ignore when scanning for source files
 ignoreFileTypes:
-- "wrapper.pb-project"
-- "wrapper.framework"
+- "wrapper.framework" # Frameworks
+- "wrapper.pb-project" # Xcode project files
 
 # Whether to move files only, without changing .xcodeproj settings
 moveFileOnly: false
-
 ```
 
 ### Step 2. Run with Swift
@@ -51,11 +53,12 @@ swift run XCFolder ./TestProject/DCDeviceTest.xcodeproj ./Configuration.yaml
 ```
 
 ### Step 3. Wait for the execution to complete.
-<img width="700" alt="image" src="https://github.com/user-attachments/assets/778c6edc-28df-465c-9c96-7fa866943cc1" />
 
+![image](https://github.com/user-attachments/assets/e8e6a4fe-5bf7-40f5-8d17-521a42da97b4)
 
 ### Step 4: Done, Have a great day! 🚀🚀🚀
-<img width="700" alt="image" src="https://github.com/user-attachments/assets/615acad8-647e-41f5-aee6-ebf7280d30c5" />
+
+![image](https://github.com/user-attachments/assets/65025508-a309-4249-b63d-de5148f8203b)
 
 ## Technical Details
 The entire project is written in Swift and runs as an SPM command-line tool.
