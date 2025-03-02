@@ -98,7 +98,13 @@ private extension GroupToFolderUseCase {
             }
             
             guard originalPath != fullPath else {
+                adjustXcodeProjFile(pathNode: pathNode, fullPath: fullPath)
                 logger.log(message: "ℹ️ File already at correct path: \(pathNode.path ?? "unknown")")
+                return
+            }
+            
+            guard pathNode.masterNode == nil else {
+                logger.log(message: "⏭️ Redundant path: \(pathNode.path ?? "unknown")")
                 return
             }
             

@@ -17,6 +17,8 @@ final class FileNode: PathNode {
     var parent: PathNode?
     var children: [PathNode] = []
     
+    var masterNode: PathNode?
+    
     var fileType: String? {
         return (source as? PBXFileReference)?.lastKnownFileType
     }
