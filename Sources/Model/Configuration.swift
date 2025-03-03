@@ -22,6 +22,7 @@ struct Configuration: CustomStringConvertible {
         # Ignore Paths: \(ignorePaths)
         # Ignore File Types: \(ignoreFileTypes)
         # Move File Only: \(moveFileOnly)
+        # Git Move: \(gitMove)
         """
     }
     

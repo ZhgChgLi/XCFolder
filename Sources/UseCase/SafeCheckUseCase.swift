@@ -25,13 +25,7 @@ final class SafeCheckUseCase: SafeCheckUseCaseSepc {
         self.fileRepository = fileRepository
     }
     
-    func execute() async throws {
-        guard let url = URL(string: projectPath),
-                  url.pathExtension.lowercased() == "xcodeproj",
-                  fileRepository.exists(at: Path(url.standardizedFileURL.relativeString)) else {
-            throw SafeCheckUseCaseError.invalidPath
-        }
-        
+    func execute() async throws {        
         if await gitRepository.hasUncommittedChanges() {
             throw SafeCheckUseCaseError.hasUncommittedChanges
         }

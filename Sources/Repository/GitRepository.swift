@@ -18,23 +18,18 @@ final class GitRepository: GitRepositorySpec {
     private let service: ProcessServiceSpec
     private let currentDirectory: URL
     private let logger: LoggerSpec
-    init?(path: URL, logger: LoggerSpec, service: ProcessServiceSpec = ProcessService()) async {
+    init(path: URL, logger: LoggerSpec, service: ProcessServiceSpec = ProcessService()) async throws {
         self.service = service
         self.logger = logger
         let result = await service.run(currentDirectory: path, command: "git", arguments: ["rev-parse", "--show-toplevel"])
-        do {
-            switch result {
-            case .success(let output):
-                guard let url = URL(string: output) else {
-                    throw GitRepositoryError.invalidPath
-                }
-                self.currentDirectory = URL(fileURLWithPath: url.path)
-            case .failure(let error):
-                throw (GitRepositoryError.processError(error))
+        switch result {
+        case .success(let output):
+            guard let url = URL(string: output) else {
+                throw GitRepositoryError.invalidPath
             }
-        } catch {
-            self.logger.log(message: "❌ Not a valid git, will use filesystem instead: \(error)")
-            return nil
+            self.currentDirectory = URL(fileURLWithPath: url.path)
+        case .failure(let error):
+            throw (GitRepositoryError.processError(error))
         }
     }
     
