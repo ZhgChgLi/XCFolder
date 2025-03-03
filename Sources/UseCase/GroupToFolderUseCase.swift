@@ -63,27 +63,25 @@ private extension GroupToFolderUseCase {
         
         let fullPath = pathNode.fullPath(projectPath: projectRootPath)
         if let pathNode = pathNode as? GroupNode {
+            guard !pathNode.isPBXVariantGroup else {
+                logger.log(message: "⏭️ Skipping PBXVariantGroup: \(pathNode.path ?? "unknown")")
+                return
+            }
             
-            if pathNode.isPBXVariantGroup {
-                pathNode.children.forEach { child in
-                    enumerator(pathNode: child)
-                }
-            } else {
-                if !pathNode.isMainGroup {
-                    creatDirectoryIfNotExsits(path: fullPath)
+            if !pathNode.isMainGroup {
+                creatDirectoryIfNotExsits(path: fullPath)
+            }
+            
+            pathNode.children.forEach { child in
+                enumerator(pathNode: child)
+            }
+            
+            if !pathNode.isMainGroup {
+                if let originalPath = pathNode.originalPath(projectPath: projectRootPath) {
+                    deleteDirectoryIfEmpty(path: originalPath)
                 }
                 
-                pathNode.children.forEach { child in
-                    enumerator(pathNode: child)
-                }
-                
-                if !pathNode.isMainGroup {
-                    if let originalPath = pathNode.originalPath(projectPath: projectRootPath) {
-                        deleteDirectoryIfEmpty(path: originalPath)
-                    }
-                    
-                    adjustXcodeProjGroup(pathNode: pathNode, fullPath: fullPath)
-                }
+                adjustXcodeProjGroup(pathNode: pathNode, fullPath: fullPath)
             }
         } else if let pathNode = pathNode as? FileNode {
             guard let fileType = pathNode.fileType,

@@ -10,14 +10,24 @@ import ArgumentParser
 import Foundation
 
 @main
-struct XCFolder: AsyncParsableCommand {
-    
+public struct XCFolder: AsyncParsableCommand {
+
     @Argument(help: "Your .xcodeproj file path")
     var xcodeProjFilePath: String?
     
     @Argument(help: "Configuration YAML file path")
     var configurationFilePath: String?
     
+    var isTerminalMode: Bool = false
+    
+    public init(xcodeProjFilePath: String? = nil, configurationFilePath: String? = nil) {
+        self.xcodeProjFilePath = xcodeProjFilePath
+        self.configurationFilePath = configurationFilePath
+    }
+    
+    public init() {
+        
+    }
     
     enum CodingKeys: CodingKey {
         case xcodeProjFilePath
@@ -28,7 +38,8 @@ struct XCFolder: AsyncParsableCommand {
     private lazy var gitRepository: GitRepository = GitRepository()
     private lazy var configurationRepository: ConfigurationRepositorySpec = ConfigurationRepository()
     private lazy var logger: Logger = Logger()
-    mutating func run() async throws {
+    public mutating func run() async throws {
+        self.isTerminalMode = true
         
         let xcodeProjFilePath = await askXcodeProjFilePath(defaultPathString: self.xcodeProjFilePath)
         let configuration = await askConfigurationFromYAML(defaultPathString: self.configurationFilePath) ?? Configuration()
@@ -38,8 +49,10 @@ struct XCFolder: AsyncParsableCommand {
         
         groupToFolderUseCase.execute()
         
-        let thanksUseCase = ThanksUseCase()
-        await thanksUseCase.execute()
+        if self.isTerminalMode {
+            let thanksUseCase = ThanksUseCase()
+            await thanksUseCase.execute()
+        }
     }
 }
 
