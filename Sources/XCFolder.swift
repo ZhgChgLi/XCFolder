@@ -8,6 +8,7 @@
 import PathKit
 import ArgumentParser
 import Foundation
+import AppKit
 
 @main
 struct XCFolder: AsyncParsableCommand {
@@ -28,43 +29,60 @@ struct XCFolder: AsyncParsableCommand {
     }
     
     private lazy var fileRepository: FileRepositorySpec = FileRepository()
-    private lazy var gitRepository: GitRepository = GitRepository()
     private lazy var configurationRepository: ConfigurationRepositorySpec = ConfigurationRepository()
     private lazy var logger: Logger = Logger()
+    private var gitRepository: GitRepositorySpec?
     mutating func run() async throws {
         
         let xcodeProjFilePath = try await askXcodeProjFilePath(defaultPathString: self.xcodeProjFilePath)
-        let configuration = try await askConfigurationFromYAML(defaultPathString: self.configurationFilePath) ?? Configuration()
-    
-        let xcodeProjRepository = try XcodeProjRepository(path: xcodeProjFilePath)
-        let groupToFolderUseCase = GroupToFolderUseCase(projectRootPath: xcodeProjFilePath.parent(), configuration: configuration, xcodeProjRepository: xcodeProjRepository, fileRepository: fileRepository, logger: logger)
+        let configuration = await askConfigurationFromYAML(defaultPathString: self.configurationFilePath)
         
-        groupToFolderUseCase.execute()
+        do {
+            let fileURL = URL(fileURLWithPath: xcodeProjFilePath.string)
+            let gitRepository = try await GitRepository(path: fileURL, logger: self.logger)
+            self.gitRepository = gitRepository
+        } catch {
+            logger.log(message: "❌ Not found valid git, will use filesystem instead: \(error)")
+        }
+        
+        try await askSafeCheck(xcodeProjFilePath: xcodeProjFilePath)
+        
+        let xcodeProjRepository = try XcodeProjRepository(path: xcodeProjFilePath)
+        let groupToFolderUseCase = GroupToFolderUseCase(projectRootPath: xcodeProjFilePath.parent(), configuration: configuration, xcodeProjRepository: xcodeProjRepository, fileRepository: fileRepository, gitRepository: self.gitRepository, logger: logger)
+        
+        await groupToFolderUseCase.execute()
+        
+        let thanksUseCase = ThanksUseCase()
+        await thanksUseCase.execute()
         
         if !isNonInteractiveMode {
-            let thanksUseCase = ThanksUseCase()
-            await thanksUseCase.execute()
+            await promoptVisitMyBlog()
         }
     }
 }
 
 private extension XCFolder {
     mutating func askXcodeProjFilePath(defaultPathString: String?) async throws -> Path {
+        let xcodeProjFilePathString: String
+        if let defaultPathString = defaultPathString {
+            xcodeProjFilePathString = defaultPathString.trimmingCharacters(in: .whitespacesAndNewlines)
+        } else {
+            print("Please enter your .xcodeproj file path: ", terminator: " ")
+            xcodeProjFilePathString = await Helper.readAsyncInput()
+        }
+        
         do {
-            let xcodeProjFilePathString: String
-            if let defaultPathString = defaultPathString {
-                xcodeProjFilePathString = defaultPathString.trimmingCharacters(in: .whitespacesAndNewlines)
-            } else {
-                print("Please enter your .xcodeproj file path: ", terminator: " ")
-                xcodeProjFilePathString = await Helper.readAsyncInput()
+            guard let url = URL(string: xcodeProjFilePathString),
+                  url.pathExtension.lowercased() == "xcodeproj",
+                  fileRepository.exists(at: Path(url.standardizedFileURL.relativeString)) else {
+                throw SafeCheckUseCaseError.invalidPath
             }
             
-            let safeCheckUseCase = SafeCheckUseCase(projectPath: xcodeProjFilePathString, gitRepository: gitRepository, fileRepository: fileRepository)
-            try await safeCheckUseCase.execute()
-            return Path(URL(fileURLWithPath: xcodeProjFilePathString).standardizedFileURL.path())
+            let fileURL = URL(fileURLWithPath: xcodeProjFilePathString).standardizedFileURL
+            return Path(fileURL.path())
         } catch {
-            logger.log(message: "❌ Error: \(error)")
             if !isNonInteractiveMode {
+                logger.log(message: "⚠️ \(error)")
                 return try await askXcodeProjFilePath(defaultPathString: nil)
             } else {
                 throw error
@@ -72,41 +90,75 @@ private extension XCFolder {
         }
     }
     
-    mutating func askConfigurationFromYAML(defaultPathString: String?) async throws -> Configuration? {
-        do {
-            print("Please enter your Configuration YAML file path: [Empty to use default]")
-            let configurationPathString: String
-            if let defaultPathString = defaultPathString {
-                configurationPathString = defaultPathString.trimmingCharacters(in: .whitespacesAndNewlines)
-            } else {
-                configurationPathString = await Helper.readAsyncInput()
+    mutating func askConfigurationFromYAML(defaultPathString: String?) async -> Configuration {
+        if let defaultPathString = defaultPathString {
+            do {
+                guard let url = URL(string: defaultPathString),
+                          url.pathExtension.lowercased() == "yaml",
+                          fileRepository.exists(at: Path(url.standardizedFileURL.relativeString)) else {
+                    throw SafeCheckUseCaseError.invalidPath
+                }
+                
+                let configurationPath = Path(defaultPathString)
+                let result = configurationRepository.fetch(path: configurationPath)
+                switch result {
+                case .success(let configuration):
+                    return configuration
+                case .failure(let error):
+                    throw error
+                }
+            } catch {
+                logger.log(message: "⚠️ The provided Configuration.yaml is not valid. Using the default configuration instead, error: \(error)")
+                if !isNonInteractiveMode {
+                    return await askConfigurationFromYAML(defaultPathString: nil)
+                } else {
+                    return Configuration()
+                }
             }
-            
-            guard configurationPathString != "" else {
-                return nil
-            }
-            
-            guard let url = URL(string: configurationPathString),
-                      url.pathExtension.lowercased() == "yaml",
-                      fileRepository.exists(at: Path(url.standardizedFileURL.relativeString)) else {
-                throw SafeCheckUseCaseError.invalidPath
-            }
-            
-            let configurationPath = Path(configurationPathString)
-            let result = configurationRepository.fetch(path: configurationPath)
-            switch result {
-            case .success(let configuration):
-                return configuration
-            case .failure(let error):
-                throw error
-            }
-        } catch {
-            logger.log(message: "⚠️ Failed to load configuration: \(error)")
+        } else {
+            // doesn't provide default path
             if !isNonInteractiveMode {
-                return try await askConfigurationFromYAML(defaultPathString: nil)
+                print("Please enter the path to your Configuration YAML file [Leave empty to use the default]: ")
+                let configurationPathString = await Helper.readAsyncInput()
+                if configurationPathString != "" {
+                    return await askConfigurationFromYAML(defaultPathString: configurationPathString)
+                } else {
+                    return Configuration()
+                }
+            } else {
+                logger.log(message: "⚠️ Doesn't provide Configuration.yaml path, use default configuration instead")
+                return Configuration()
+            }
+        }
+    }
+    
+    mutating func askSafeCheck(xcodeProjFilePath: Path) async throws {
+        guard let gitRepository = self.gitRepository else {
+            return
+        }
+        
+        do {
+            let safeCheckUseCase = SafeCheckUseCase(projectPath: xcodeProjFilePath.string, gitRepository: gitRepository, fileRepository: fileRepository)
+            try await safeCheckUseCase.execute()
+        } catch {
+            if !isNonInteractiveMode {
+                logger.log(message: "⚠️ \(error)")
+                print("Please [enter] to continue...")
+                _ = await Helper.readAsyncInput()
+                return try await askSafeCheck(xcodeProjFilePath: xcodeProjFilePath)
             } else {
                 throw error
             }
+        }
+    }
+    
+    mutating func promoptVisitMyBlog() async {
+        print("Press [Enter] to visit my blog at blog.zhgchg.li...")
+        let _ = await Helper.readAsyncInput()
+        
+        guard let url = URL(string: "https://blog.zhgchg.li"),
+            NSWorkspace.shared.open(url) else {
+            return
         }
     }
 }

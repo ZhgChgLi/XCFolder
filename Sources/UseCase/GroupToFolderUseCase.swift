@@ -10,7 +10,7 @@ import PathKit
 import XcodeProj
 
 protocol GroupToFolderUseCaseSepc {
-    func execute()
+    func execute() async
 }
 
 class GroupToFolderUseCase: GroupToFolderUseCaseSepc {
@@ -18,6 +18,7 @@ class GroupToFolderUseCase: GroupToFolderUseCaseSepc {
     let projectRootPath: Path
     let xcodeProjRepository: XcodeProjRepositorySpec
     let fileRepository: FileRepositorySpec
+    let gitRepository: GitRepositorySpec?
     let logger: LoggerSpec
     let configuration: Configuration
     
@@ -25,22 +26,24 @@ class GroupToFolderUseCase: GroupToFolderUseCaseSepc {
          configuration: Configuration,
          xcodeProjRepository: XcodeProjRepositorySpec,
          fileRepository: FileRepositorySpec,
+         gitRepository: GitRepositorySpec?,
          logger: LoggerSpec) {
         self.projectRootPath = projectRootPath
         self.xcodeProjRepository = xcodeProjRepository
         self.fileRepository = fileRepository
+        self.gitRepository = gitRepository
         self.configuration = configuration
         self.logger = logger
     }
     
-    func execute() {
+    func execute() async {
         do {
             logger.log(message: "🔍 Congiuartion:")
             logger.log(message: configuration.description)
             logger.log(message: "🚀 Starting project organization")
             
             let pathNode = try xcodeProjRepository.parse()
-            enumerator(pathNode: pathNode)
+            await enumerator(pathNode: pathNode)
             
             if !configuration.moveFileOnly {
                 try xcodeProjRepository.save()
@@ -54,7 +57,7 @@ class GroupToFolderUseCase: GroupToFolderUseCaseSepc {
 }
 
 private extension GroupToFolderUseCase {
-    func enumerator(pathNode: PathNode) {
+    func enumerator(pathNode: PathNode) async {
         let cleanFullPath = pathNode.fullPath(projectPath: "")
         guard !configuration.ignorePaths.contains(cleanFullPath) else {
             logger.log(message: "⏭️ Ignoring path: \(cleanFullPath)")
@@ -72,8 +75,8 @@ private extension GroupToFolderUseCase {
                 creatDirectoryIfNotExsits(path: fullPath)
             }
             
-            pathNode.children.forEach { child in
-                enumerator(pathNode: child)
+            for child in pathNode.children {
+                await enumerator(pathNode: child)
             }
             
             if !pathNode.isMainGroup {
@@ -114,7 +117,7 @@ private extension GroupToFolderUseCase {
             }
             
             creatDirectoryIfNotExsits(path: fullPath.parent())
-            moveFile(from: originalPath, to: fullPath)
+            await moveFile(from: originalPath, to: fullPath)
             adjustXcodeProjFile(pathNode: pathNode, fullPath: fullPath)
         }
     }
@@ -141,7 +144,7 @@ private extension GroupToFolderUseCase {
         }
     }
     
-    func moveFile(from: Path, to: Path) {
+    func moveFile(from: Path, to: Path) async {
         do {
             if fileRepository.exists(at: to) {
                 try fileRepository.remove(at: to)
@@ -152,8 +155,27 @@ private extension GroupToFolderUseCase {
         }
         
         do {
-            try fileRepository.move(from: from, to: to)
-            logger.log(message: "📝 Moved file from \(from) to \(to)")
+            if configuration.gitMove,
+               let gitRepository = self.gitRepository {
+                do {
+                    try await gitRepository.move(from: from, to: to)
+                    logger.log(message: "📝 (Git) Moved file from \(from) to \(to)")
+                    
+                    // Due to potential issues with Git when moving files, we will use filesystem move instead, double-check again.
+                    if !fileRepository.exists(at: to) {
+                        try fileRepository.move(from: from, to: to)
+                        logger.log(message: "❌ (Git) Moved failed, use filesystem move instead: from \(to) to \(to)")
+                    }
+                } catch {
+                    try fileRepository.move(from: from, to: to)
+                    logger.log(message: "❌ (Git) Moved failed, use filesystem move instead: \(error)")
+                    logger.log(message: "📝 Moved file from \(from) to \(to)")
+                }
+            } else {
+                try fileRepository.move(from: from, to: to)
+                logger.log(message: "📝 Moved file from \(from) to \(to)")
+            }
+            
         } catch {
             logger.log(message: "❌ File move failed: \(error)")
         }
