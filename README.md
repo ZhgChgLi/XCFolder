@@ -47,6 +47,10 @@ moveFileOnly: false
 cd ./XCFolder
 swift run XCFolder YOUR_XCODEPROJ_FILE.xcodeproj ./Configuration.yaml
 ```
+#### Non Interactive Mode
+```
+swift run XCFolder YOUR_XCODEPROJ_FILE.xcodeproj ./Configuration.yaml --is-non-interactive-mode
+```
 #### For example
 ```
 swift run XCFolder ./TestProject/DCDeviceTest.xcodeproj ./Configuration.yaml
