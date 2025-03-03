@@ -17,8 +17,9 @@ public struct XCFolder: AsyncParsableCommand {
     
     @Argument(help: "Configuration YAML file path")
     var configurationFilePath: String?
-    
-    var isTerminalMode: Bool = false
+
+    @Flag(name: .long, help: "Set Non-interactive mode")
+    var isNonInteractiveMode: Bool = false
     
     public init(xcodeProjFilePath: String? = nil, configurationFilePath: String? = nil) {
         self.xcodeProjFilePath = xcodeProjFilePath
@@ -32,6 +33,7 @@ public struct XCFolder: AsyncParsableCommand {
     enum CodingKeys: CodingKey {
         case xcodeProjFilePath
         case configurationFilePath
+        case isNonInteractiveMode
     }
     
     private lazy var fileRepository: FileRepositorySpec = FileRepository()
@@ -39,17 +41,16 @@ public struct XCFolder: AsyncParsableCommand {
     private lazy var configurationRepository: ConfigurationRepositorySpec = ConfigurationRepository()
     private lazy var logger: Logger = Logger()
     public mutating func run() async throws {
-        self.isTerminalMode = true
         
-        let xcodeProjFilePath = await askXcodeProjFilePath(defaultPathString: self.xcodeProjFilePath)
-        let configuration = await askConfigurationFromYAML(defaultPathString: self.configurationFilePath) ?? Configuration()
+        let xcodeProjFilePath = try await askXcodeProjFilePath(defaultPathString: self.xcodeProjFilePath)
+        let configuration = try await askConfigurationFromYAML(defaultPathString: self.configurationFilePath) ?? Configuration()
     
         let xcodeProjRepository = try XcodeProjRepository(path: xcodeProjFilePath)
         let groupToFolderUseCase = GroupToFolderUseCase(projectRootPath: xcodeProjFilePath.parent(), configuration: configuration, xcodeProjRepository: xcodeProjRepository, fileRepository: fileRepository, logger: logger)
         
         groupToFolderUseCase.execute()
         
-        if self.isTerminalMode {
+        if !isNonInteractiveMode {
             let thanksUseCase = ThanksUseCase()
             await thanksUseCase.execute()
         }
@@ -57,7 +58,7 @@ public struct XCFolder: AsyncParsableCommand {
 }
 
 private extension XCFolder {
-    mutating func askXcodeProjFilePath(defaultPathString: String?) async -> Path {
+    mutating func askXcodeProjFilePath(defaultPathString: String?) async throws -> Path {
         do {
             let xcodeProjFilePathString: String
             if let defaultPathString = defaultPathString {
@@ -72,11 +73,15 @@ private extension XCFolder {
             return Path(URL(fileURLWithPath: xcodeProjFilePathString).standardizedFileURL.path())
         } catch {
             logger.log(message: "❌ Error: \(error)")
-            return await askXcodeProjFilePath(defaultPathString: nil)
+            if !isNonInteractiveMode {
+                return try await askXcodeProjFilePath(defaultPathString: nil)
+            } else {
+                throw error
+            }
         }
     }
     
-    mutating func askConfigurationFromYAML(defaultPathString: String?) async -> Configuration? {
+    mutating func askConfigurationFromYAML(defaultPathString: String?) async throws -> Configuration? {
         do {
             print("Please enter your Configuration YAML file path: [Empty to use default]")
             let configurationPathString: String
@@ -106,7 +111,11 @@ private extension XCFolder {
             }
         } catch {
             logger.log(message: "⚠️ Failed to load configuration: \(error)")
-            return await askConfigurationFromYAML(defaultPathString: nil)
+            if !isNonInteractiveMode {
+                return try await askConfigurationFromYAML(defaultPathString: nil)
+            } else {
+                throw error
+            }
         }
     }
 }
