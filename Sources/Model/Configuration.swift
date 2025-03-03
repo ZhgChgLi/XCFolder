@@ -14,6 +14,8 @@ struct Configuration: CustomStringConvertible {
     let ignoreFileTypes: [String]
     /// Whether to move files only, without changing .xcodeproj settings
     let moveFileOnly: Bool
+    /// Use git mv by default instead of filesystem move
+    let gitMove: Bool
     
     var description: String {
         return """
@@ -25,13 +27,18 @@ struct Configuration: CustomStringConvertible {
     
     init() {
         self.ignorePaths = ["Pods", "Frameworks", "Products"]
-        self.ignoreFileTypes = ["wrapper.framework", "wrapper.pb-project"]
+        self.ignoreFileTypes = [
+            "wrapper.framework",  // Frameworks
+            "wrapper.pb-project", // Xcode project files
+        ]
         self.moveFileOnly = false
+        self.gitMove = true
     }
     
-    init(ignorePaths: [Path], ignoreFileTypes: [String], moveFileOnly: Bool) {
+    init(ignorePaths: [Path], ignoreFileTypes: [String], moveFileOnly: Bool, gitMove: Bool) {
         self.ignorePaths = ignorePaths
         self.ignoreFileTypes = ignoreFileTypes
         self.moveFileOnly = moveFileOnly
+        self.gitMove = gitMove
     }
 }

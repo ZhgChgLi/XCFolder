@@ -15,4 +15,6 @@ struct ConfigurationEntity: Decodable {
     let ignoreFileTypes: [String]
     /// Whether to move files only, without changing .xcodeproj settings
     let moveFileOnly: Bool
+    /// Use git mv by default instead of filesystem move
+    let gitMove: Bool
 }
