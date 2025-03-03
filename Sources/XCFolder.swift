@@ -10,7 +10,7 @@ import ArgumentParser
 import Foundation
 
 @main
-public struct XCFolder: AsyncParsableCommand {
+struct XCFolder: AsyncParsableCommand {
 
     @Argument(help: "Your .xcodeproj file path")
     var xcodeProjFilePath: String?
@@ -20,15 +20,6 @@ public struct XCFolder: AsyncParsableCommand {
 
     @Flag(name: .long, help: "Set Non-interactive mode")
     var isNonInteractiveMode: Bool = false
-    
-    public init(xcodeProjFilePath: String? = nil, configurationFilePath: String? = nil) {
-        self.xcodeProjFilePath = xcodeProjFilePath
-        self.configurationFilePath = configurationFilePath
-    }
-    
-    public init() {
-        
-    }
     
     enum CodingKeys: CodingKey {
         case xcodeProjFilePath
@@ -40,7 +31,7 @@ public struct XCFolder: AsyncParsableCommand {
     private lazy var gitRepository: GitRepository = GitRepository()
     private lazy var configurationRepository: ConfigurationRepositorySpec = ConfigurationRepository()
     private lazy var logger: Logger = Logger()
-    public mutating func run() async throws {
+    mutating func run() async throws {
         
         let xcodeProjFilePath = try await askXcodeProjFilePath(defaultPathString: self.xcodeProjFilePath)
         let configuration = try await askConfigurationFromYAML(defaultPathString: self.configurationFilePath) ?? Configuration()
