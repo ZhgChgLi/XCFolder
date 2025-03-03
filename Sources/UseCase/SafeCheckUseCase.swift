@@ -32,12 +32,8 @@ final class SafeCheckUseCase: SafeCheckUseCaseSepc {
             throw SafeCheckUseCaseError.invalidPath
         }
         
-        let fileURL = URL(fileURLWithPath: projectPath)
-        if case .success(let gitURL) = await gitRepository.retrieveGitPath(path: fileURL) {
-            let gitFileURL = URL(fileURLWithPath: gitURL.standardizedFileURL.relativeString)
-            if await gitRepository.hasUncommittedChanges(path: gitFileURL) {
-                throw SafeCheckUseCaseError.hasUncommittedChanges
-            }
+        if await gitRepository.hasUncommittedChanges() {
+            throw SafeCheckUseCaseError.hasUncommittedChanges
         }
     }
 }

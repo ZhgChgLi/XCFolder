@@ -28,18 +28,34 @@ struct XCFolder: AsyncParsableCommand {
     }
     
     private lazy var fileRepository: FileRepositorySpec = FileRepository()
-    private lazy var gitRepository: GitRepository = GitRepository()
     private lazy var configurationRepository: ConfigurationRepositorySpec = ConfigurationRepository()
     private lazy var logger: Logger = Logger()
+    private var gitRepository: GitRepositorySpec?
     mutating func run() async throws {
         
         let xcodeProjFilePath = try await askXcodeProjFilePath(defaultPathString: self.xcodeProjFilePath)
         let configuration = try await askConfigurationFromYAML(defaultPathString: self.configurationFilePath) ?? Configuration()
+        
+        do {
+            let fileURL = URL(fileURLWithPath: xcodeProjFilePath.string)
+            if let gitRepository = await GitRepository(path: fileURL, logger: self.logger) {
+                let safeCheckUseCase = SafeCheckUseCase(projectPath: xcodeProjFilePath.string, gitRepository: gitRepository, fileRepository: fileRepository)
+                try await safeCheckUseCase.execute()
+                self.gitRepository = gitRepository
+            }
+        } catch {
+            logger.log(message: "❌ Error: \(error)")
+            if !isNonInteractiveMode {
+                return try await run()
+            } else {
+                throw error
+            }
+        }
     
         let xcodeProjRepository = try XcodeProjRepository(path: xcodeProjFilePath)
-        let groupToFolderUseCase = GroupToFolderUseCase(projectRootPath: xcodeProjFilePath.parent(), configuration: configuration, xcodeProjRepository: xcodeProjRepository, fileRepository: fileRepository, logger: logger)
+        let groupToFolderUseCase = GroupToFolderUseCase(projectRootPath: xcodeProjFilePath.parent(), configuration: configuration, xcodeProjRepository: xcodeProjRepository, fileRepository: fileRepository, gitRepository: self.gitRepository, logger: logger)
         
-        groupToFolderUseCase.execute()
+        await groupToFolderUseCase.execute()
         
         if !isNonInteractiveMode {
             let thanksUseCase = ThanksUseCase()
@@ -50,26 +66,16 @@ struct XCFolder: AsyncParsableCommand {
 
 private extension XCFolder {
     mutating func askXcodeProjFilePath(defaultPathString: String?) async throws -> Path {
-        do {
-            let xcodeProjFilePathString: String
-            if let defaultPathString = defaultPathString {
-                xcodeProjFilePathString = defaultPathString.trimmingCharacters(in: .whitespacesAndNewlines)
-            } else {
-                print("Please enter your .xcodeproj file path: ", terminator: " ")
-                xcodeProjFilePathString = await Helper.readAsyncInput()
-            }
-            
-            let safeCheckUseCase = SafeCheckUseCase(projectPath: xcodeProjFilePathString, gitRepository: gitRepository, fileRepository: fileRepository)
-            try await safeCheckUseCase.execute()
-            return Path(URL(fileURLWithPath: xcodeProjFilePathString).standardizedFileURL.path())
-        } catch {
-            logger.log(message: "❌ Error: \(error)")
-            if !isNonInteractiveMode {
-                return try await askXcodeProjFilePath(defaultPathString: nil)
-            } else {
-                throw error
-            }
+        let xcodeProjFilePathString: String
+        if let defaultPathString = defaultPathString {
+            xcodeProjFilePathString = defaultPathString.trimmingCharacters(in: .whitespacesAndNewlines)
+        } else {
+            print("Please enter your .xcodeproj file path: ", terminator: " ")
+            xcodeProjFilePathString = await Helper.readAsyncInput()
         }
+        
+        let path = Path(URL(fileURLWithPath: xcodeProjFilePathString).standardizedFileURL.path())
+        return path
     }
     
     mutating func askConfigurationFromYAML(defaultPathString: String?) async throws -> Configuration? {

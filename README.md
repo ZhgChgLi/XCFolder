@@ -37,9 +37,18 @@ ignorePaths:
 ignoreFileTypes:
 - "wrapper.framework" # Frameworks
 - "wrapper.pb-project" # Xcode project files
+#- "wrapper.application" # Applications
+#- "wrapper.cfbundle" # Bundles
+#- "wrapper.plug-in" # Plug-ins
+#- "wrapper.xpc-service" # XPC services
+#- "wrapper.xctest" # XCTest bundles
+#- "wrapper.app-extension" # App extensions
 
 # Whether to move files only, without changing .xcodeproj settings
 moveFileOnly: false
+
+# Use git mv by default instead of filesystem move
+gitMove: true
 ```
 
 ### Step 2. Run with Swift
