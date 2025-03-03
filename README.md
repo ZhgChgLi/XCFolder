@@ -65,6 +65,12 @@ swift run XCFolder YOUR_XCODEPROJ_FILE.xcodeproj ./Configuration.yaml --is-non-i
 swift run XCFolder ./TestProject/DCDeviceTest.xcodeproj ./Configuration.yaml
 ```
 
+#### **⚠️ Please note before running:**
+- Make sure there are no uncommitted changes in Git, as the script might cause issues with your project directory.
+  - (The script will check for uncommitted changes and will throw an error ❌ Error: There are uncommitted changes in the repository)
+- By default, the `git mv` command will be used to move files to ensure the git file log is fully recorded.
+  - If the move fails or if it's not a Git project, the FileSystem Move will be used instead.
+
 ### Step 3. Wait for the execution to complete.
 
 ![image](https://github.com/user-attachments/assets/e8e6a4fe-5bf7-40f5-8d17-521a42da97b4)
@@ -72,6 +78,15 @@ swift run XCFolder ./TestProject/DCDeviceTest.xcodeproj ./Configuration.yaml
 ### Step 4: Done, Have a great day! 🚀🚀🚀
 
 ![image](https://github.com/user-attachments/assets/65025508-a309-4249-b63d-de5148f8203b)
+
+#### **⚠️ Please note after running:**
+- Check if there are any missing (red) files in the project directory.
+  - If there are few, you can manually fix them.
+  - If there are many, verify whether the settings for ignorePaths and ignoreFileTypes in Configuration.yaml are correct, or create an Issue to let me know.
+- Check the relevant paths in Build Settings, e.g., `LIBRARY_SEARCH_PATHS`, to see if manual adjustments are needed.
+- It's recommended to perform a Clean & Build again.
+- If you don't want to bother with the current `.xcodeproj` XCode project file, you can directly use XCodeGen or Tuist to regenerate the project files.
+
 
 ## Technical Details
 The entire project is written in Swift and runs as an SPM command-line tool.
