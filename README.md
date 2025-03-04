@@ -4,9 +4,7 @@
   <img width="700" alt="image" src="https://github.com/user-attachments/assets/27df3d5c-0ad8-46aa-842d-10aaf0bbaeb0" />
 </p>
 
-XCFolder is a powerful command-line tool that converts Xcode virtual groups into actual directories (associated folder), reorganizing your project structure to align with Xcode groups.
-
-This ensures seamless integration with modern Xcode project generation tools like Tuist and XcodeGen, improving maintainability and workflow efficiency. 🚀
+XCFolder is a powerful command-line tool that converts Xcode virtual groups into actual directories(associated folder), reorganizing your project structure to align with Xcode groups and enabling seamless integration with modern Xcode project generation tools like Tuist and XcodeGen.
 
 ## Key Features
 - **Smart Group Conversion**: Intelligently transforms Xcode virtual groups into physical directories while preserving project structure
