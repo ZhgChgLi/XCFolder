@@ -66,8 +66,8 @@ swift run XCFolder ./TestProject/DCDeviceTest.xcodeproj ./Configuration.yaml
 ```
 
 #### **⚠️ Please note before running:**
-- Make sure there are no uncommitted changes in Git, as the script might cause issues with your project directory.
-  - (The script will check for uncommitted changes and will throw an error ❌ Error: There are uncommitted changes in the repository)
+- **Ensure your project is backed up**, and if you’re using source control,**make sure there are no uncommitted changes** in Git, as the script may modify your project directory.
+  - (The script will check for uncommitted changes and will throw an error `❌ Error: There are uncommitted changes in the repository`)
 - By default, the `git mv` command will be used to move files to ensure the git file log is fully recorded.
   - If the move fails or if it's not a Git project, the FileSystem Move will be used instead.
 
