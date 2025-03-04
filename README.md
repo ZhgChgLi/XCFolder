@@ -87,6 +87,9 @@ swift run XCFolder ./TestProject/DCDeviceTest.xcodeproj ./Configuration.yaml
 
 
 ## Technical Details
+
+- [\[English\] The Development Story of XCFolder](https://zhgchg.li/posts/fd719053b376_en/) | [\[中文\] XCode 虛擬目錄萬年問題探究與我的開源工具解決方案](https://zhgchg.li/posts/fd719053b376/)
+
 The entire project is written in Swift and runs as an SPM command-line tool.
 
 You can modify the source code by opening `Package.swift` if needed.
