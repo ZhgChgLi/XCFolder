@@ -1,7 +1,8 @@
 # XCFolder
 
 <p align="center">
-  <img width="700" alt="image" src="https://github.com/user-attachments/assets/27df3d5c-0ad8-46aa-842d-10aaf0bbaeb0" />
+  <img width="700" alt="image" src="https://github.com/user-attachments/assets/27df3d5c-0ad8-46aa-842d-10aaf0bbaeb0" /> <br/>
+  <a href="https://github.com/tuist/awesome-tuist" target="_blank"><img src="https://awesome.re/badge.svg"/></a>
 </p>
 
 XCFolder is a powerful command-line tool that converts Xcode virtual groups into actual directories(associated folder), reorganizing your project structure to align with Xcode groups and enabling seamless integration with modern Xcode project generation tools like Tuist and XcodeGen.
