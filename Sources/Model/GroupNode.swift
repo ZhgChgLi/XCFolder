@@ -37,7 +37,7 @@ final class GroupNode: PathNode {
         if isPBXVariantGroup {
             return projectPath + result
         } else {
-            if let path = self.path {
+            if let path = self.name ?? self.path {
                 return projectPath + result + Path(Path(path).lastComponent)
             } else {
                 return projectPath + result + Path(name ?? "")
