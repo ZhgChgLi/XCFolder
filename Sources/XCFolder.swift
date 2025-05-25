@@ -22,10 +22,14 @@ struct XCFolder: AsyncParsableCommand {
     @Flag(name: .long, help: "Set Non-interactive mode")
     var isNonInteractiveMode: Bool = false
     
+    @Flag(name: .long, help: "Skip git safety check for uncommitted changes")
+    var skipSafetyCheck: Bool = false
+    
     enum CodingKeys: CodingKey {
         case xcodeProjFilePath
         case configurationFilePath
         case isNonInteractiveMode
+        case skipSafetyCheck
     }
     
     private lazy var fileRepository: FileRepositorySpec = FileRepository()
@@ -45,7 +49,9 @@ struct XCFolder: AsyncParsableCommand {
             logger.log(message: "❌ Not found valid git, will use filesystem instead: \(error)")
         }
         
-        try await askSafeCheck(xcodeProjFilePath: xcodeProjFilePath)
+        if !skipSafetyCheck {
+            try await askSafeCheck(xcodeProjFilePath: xcodeProjFilePath)
+        }
         
         let xcodeProjRepository = try XcodeProjRepository(path: xcodeProjFilePath)
         let groupToFolderUseCase = GroupToFolderUseCase(projectRootPath: xcodeProjFilePath.parent(), configuration: configuration, xcodeProjRepository: xcodeProjRepository, fileRepository: fileRepository, gitRepository: self.gitRepository, logger: logger)
@@ -72,14 +78,13 @@ private extension XCFolder {
         }
         
         do {
-            guard let url = URL(string: xcodeProjFilePathString),
-                  url.pathExtension.lowercased() == "xcodeproj",
-                  fileRepository.exists(at: Path(url.standardizedFileURL.relativeString)) else {
+            let fileURL = URL(fileURLWithPath: xcodeProjFilePathString).standardizedFileURL
+            guard fileURL.pathExtension.lowercased() == "xcodeproj",
+                  fileRepository.exists(at: Path(fileURL.path)) else {
                 throw SafeCheckUseCaseError.invalidPath
             }
             
-            let fileURL = URL(fileURLWithPath: xcodeProjFilePathString).standardizedFileURL
-            return Path(fileURL.path())
+            return Path(fileURL.path)
         } catch {
             if !isNonInteractiveMode {
                 logger.log(message: "⚠️ \(error)")
@@ -93,9 +98,9 @@ private extension XCFolder {
     mutating func askConfigurationFromYAML(defaultPathString: String?) async -> Configuration {
         if let defaultPathString = defaultPathString {
             do {
-                guard let url = URL(string: defaultPathString),
-                          url.pathExtension.lowercased() == "yaml",
-                          fileRepository.exists(at: Path(url.standardizedFileURL.relativeString)) else {
+                let fileURL = URL(fileURLWithPath: defaultPathString).standardizedFileURL
+                guard fileURL.pathExtension.lowercased() == "yaml" || fileURL.pathExtension.lowercased() == "yml",
+                          fileRepository.exists(at: Path(fileURL.path)) else {
                     throw SafeCheckUseCaseError.invalidPath
                 }
                 

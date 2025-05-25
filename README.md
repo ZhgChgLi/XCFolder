@@ -12,6 +12,9 @@ XCFolder is a powerful command-line tool that converts Xcode virtual groups into
 - **Perfect Synchronization**: Maintains 1:1 mapping between Xcode project navigator and filesystem directories
 - **Automated Organization**: Eliminates manual folder management with automated synchronization
 - **Migration Ready**: Prepares your project structure for modern build systems like Tuist and XcodeGen
+- **Flexible Configuration**: Supports both `.yaml` and `.yml` configuration files
+- **Space-Friendly Paths**: Handles project names and paths containing spaces correctly
+- **Development Mode**: Optional safety check bypass for faster development workflows
 
 ![EXAMPLE](https://github.com/user-attachments/assets/aa099b5a-191b-42a0-b7f9-2005d5ca4b90)
 
@@ -59,6 +62,17 @@ swift run XCFolder YOUR_XCODEPROJ_FILE.xcodeproj ./Configuration.yaml
 ```
 swift run XCFolder YOUR_XCODEPROJ_FILE.xcodeproj ./Configuration.yaml --is-non-interactive-mode
 ```
+
+#### Skip Safety Check
+If you want to run XCFolder without checking for uncommitted git changes (useful during development):
+```
+swift run XCFolder YOUR_XCODEPROJ_FILE.xcodeproj ./Configuration.yaml --skip-safety-check
+```
+
+#### Combined Flags
+```
+swift run XCFolder YOUR_XCODEPROJ_FILE.xcodeproj ./Configuration.yaml --is-non-interactive-mode --skip-safety-check
+```
 #### For example
 ```
 swift run XCFolder ./TestProject/DCDeviceTest.xcodeproj ./Configuration.yaml
@@ -86,6 +100,20 @@ swift run XCFolder ./TestProject/DCDeviceTest.xcodeproj ./Configuration.yaml
 - It's recommended to perform a Clean & Build again.
 - If you don't want to bother with the current `.xcodeproj` XCode project file, you can directly use XCodeGen or Tuist to regenerate the project files.
 
+
+## Recent Improvements
+
+### Enhanced Path Handling
+- **Fixed file path validation**: Now properly handles project names and paths containing spaces (e.g., "My Project.xcodeproj")
+- **Improved configuration support**: Accepts both `.yaml` and `.yml` file extensions for configuration files
+
+### New Command Line Options
+- **`--skip-safety-check`**: Bypass git uncommitted changes check for faster development workflows
+- **Better error handling**: More descriptive error messages for invalid paths
+
+### Bug Fixes
+- Fixed URL parsing issues that prevented XCFolder from working with file paths containing spaces
+- Improved file path resolution using proper file URL handling instead of string-based URL parsing
 
 ## Technical Details
 
