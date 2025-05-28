@@ -26,5 +26,14 @@ let package = Package(
             resources: [
             ]
         ),
+        .testTarget(
+            name: "XCFolderTests",
+            dependencies: [
+                "XCFolder",
+                .product(name: "XcodeProj", package: "XcodeProj"),
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "Yams", package: "Yams")
+            ]
+        ),
     ]
 )
