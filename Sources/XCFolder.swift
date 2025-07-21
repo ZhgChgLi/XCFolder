@@ -158,10 +158,10 @@ private extension XCFolder {
     }
     
     mutating func promoptVisitMyBlog() async {
-        print("Press [Enter] to visit my blog at blog.zhgchg.li...")
+        print("Press [Enter] to visit my post at zhgchg.li...")
         let _ = await Helper.readAsyncInput()
         
-        guard let url = URL(string: "https://blog.zhgchg.li"),
+        guard let url = URL(string: "https://zhgchg.li/posts/en/fd719053b376/"),
             NSWorkspace.shared.open(url) else {
             return
         }
