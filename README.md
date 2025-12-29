@@ -117,7 +117,7 @@ swift run XCFolder ./TestProject/DCDeviceTest.xcodeproj ./Configuration.yaml
 
 ## Technical Details
 
-- [\[English\] The Development Story of XCFolder](https://zhgchg.li/posts/en/fd719053b376/) | [\[中文\] XCode 虛擬目錄萬年問題探究與我的開源工具解決方案](https://zhgchg.li/posts/fd719053b376/)
+- [\[English\] The Development Story of XCFolder](https://en.zhgchg.li/posts/zrealm-dev/xcode-virtual-directory-issues-streamline-your-project-structure-with-open-source-tools-fd719053b376/) | [\[中文\] XCode 虛擬目錄萬年問題探究與我的開源工具解決方案](https://zhgchg.li/posts/zrealm-dev/xcode-%E8%99%9B%E6%93%AC%E7%9B%AE%E9%8C%84%E8%BD%89%E5%AF%A6%E9%AB%94%E7%9B%AE%E9%8C%84-%E8%A7%A3%E6%B1%BA%E5%B0%88%E6%A1%88%E7%B5%90%E6%A7%8B%E6%B7%B7%E4%BA%82%E8%88%87-xcodegen-tuist-%E6%95%B4%E5%90%88%E7%97%9B%E9%BB%9E-fd719053b376/)
 
 The entire project is written in Swift and runs as an SPM command-line tool.
 
